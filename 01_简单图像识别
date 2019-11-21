@@ -1,0 +1,70 @@
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+#读取数据
+(x_train,y_train),(x_test,y_test) = tf.keras.datasets.fashion_mnist.load_data()
+class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+               'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+
+#标准化
+x_train = x_train / 255
+x_test = x_test / 255
+
+#构建网络
+model = tf.keras.Sequential([
+    tf.keras.layers.Flatten(input_shape=[28,28]),
+    tf.keras.layers.Dense(128,activation = 'relu'),
+    tf.keras.layers.Dense(10,activation = 'softmax')
+])
+model.compile(optimizer = 'adam',
+              loss = 'sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+#训练并验证
+model.fit(x_train,y_train,epochs = 5)
+model.evaluate(x_test,y_test)
+
+#预测
+prediction = model.predict(x_test)
+print(prediction[0])
+print(np.argmax(prediction[0]))
+print(y_test[0])
+
+#画图验证
+def plot_image(i,prediction_array,true_label,img):
+    prediction_array , true_label , img = prediction_array[i] , true_label[i] , img[i]
+    plt.grid(False)
+    plt.xticks([])
+    plt.yticks([])
+
+    plt.imshow(img , cmap=plt.cm.binary)
+
+    prediction_label = np.argmax(prediction_array)
+    if prediction_label == true_label:
+        color = 'blue'
+    else:
+        color = 'red'
+
+    plt.xlabel("{} {:2.0f}% ({})".format(class_names[prediction_label],
+                                         100*np.max(prediction_array),
+               class_names[true_label],color = color))
+def plot_value_array(i,prediction_array,true_label):
+    prediction_array , true_label = prediction_array[i] , true_label[i]
+    plt.grid(False)
+    plt.xticks([])
+    plt.yticks([])
+    thisplot = plt.bar(range(10),prediction_array,color="#777777")
+    plt.ylim([0,1])
+    prediction_label = np.argmax(prediction_array)
+
+    thisplot[prediction_label].set_color('red')
+    thisplot[true_label].set_color('blue')
+
+i = 0
+plt.figure(figsize=(6,3))
+plt.subplot(1,2,1)
+plot_image(i,prediction,y_test,x_test)
+plt.subplot(1,2,2)
+plot_value_array(i,prediction,y_test)
+plt.show()
