@@ -1,0 +1,24 @@
+import tensorflow as tf
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+(x_tra,y_tra),(x_test,y_test) = tf.keras.datasets.mnist.load_data()
+x_tra = x_tra.reshape(-1,28,28,1)
+x_test = x_test.reshape(-1,28,28,1)
+(x_train,x_vali,y_train,y_vali) = train_test_split(x_tra,y_tra,test_size = 5000)
+
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Conv2D(32,(3,3),input_shape = (x_train.shape[1],x_train.shape[2],x_train.shape[3]),strides=(1,1),padding='same',activation='relu'))
+model.add(tf.keras.layers.MaxPool2D(padding='same'))
+model.add(tf.keras.layers.Conv2D(64,(3,3),strides=(1,1),padding='same',activation='relu'))
+model.add(tf.keras.layers.MaxPool2D(padding='same'))
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(1024,activation='relu'))
+model.add(tf.keras.layers.Dropout(0.5))
+model.add(tf.keras.layers.Dense(10,activation='softmax'))
+model.compile(optimizer='adam',loss = 'sparse_categorical_crossentropy',metrics=['acc'])
+model.fit(x_train,y_train,epochs=30,batch_size=100,validation_data=(x_vali,y_vali))
+
+model.evaluate(x_test,y_test)
