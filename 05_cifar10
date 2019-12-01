@@ -1,0 +1,20 @@
+import tensorflow as tf
+
+(x_train,y_train),(x_test,y_test) = tf.keras.datasets.cifar10.load_data()
+
+
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(32,32,3),strides=(1,1),padding='same',activation='relu'))
+model.add(tf.keras.layers.MaxPool2D((2,2),strides=(2,2),padding='same'))
+model.add(tf.keras.layers.Conv2D(64,(3,3),strides=(1,1),padding='same',activation='relu'))
+model.add(tf.keras.layers.MaxPool2D((2,2),strides=(2,2),padding='same'))
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(384,activation='relu'))
+model.add(tf.keras.layers.Dropout(0.5))
+model.add(tf.keras.layers.Dense(192,activation='relu'))
+model.add(tf.keras.layers.Dropout(0.5))
+model.add(tf.keras.layers.Dense(10,activation='softmax'))
+model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['acc'])
+
+model.fit(x_train,y_train,epochs=30,batch_size = 100)
+model.evaluate(x_test,y_test)
