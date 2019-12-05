@@ -1,0 +1,28 @@
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import matplotlib.pyplot as plt
+from PIL import Image
+from tensorflow.keras.preprocessing import image
+import glob
+
+
+train_data_dir = "H:\\python资料\\flower_photos\\flower_photos"
+train_datagen = ImageDataGenerator(rotation_range=30,rescale=1./255,shear_range = 0.2,horizontal_flip=True)
+
+gen_data = train_datagen.flow_from_directory(train_data_dir,batch_size=10,shuffle=False,save_to_dir="H:\\python资料\\flower_photos\\models",
+                                            save_prefix='gen',target_size=(192,192))
+
+#可以保存所有强化过的图片
+for i in range(367):
+    gen_data.next()
+
+mobile_net = tf.keras.applications.MobileNetV2(input_shape=(192, 192, 3),include_top=False)
+mobile_net.trainable = False
+model = tf.keras.Sequential([
+    mobile_net,
+    tf.keras.layers.GlobalAveragePooling2D(),
+    tf.keras.layers.Dense(5,activation='softmax')
+])
+model.compile(optimizer='adam',loss='categorical_crossentropy',metrics=['acc'])
+
+history = model.fit_generator(gen_data,steps_per_epoch=367,epochs=10)
